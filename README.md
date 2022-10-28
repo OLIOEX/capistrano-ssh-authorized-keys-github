@@ -34,7 +34,9 @@ The task will run automatically on successful deploy. Alternatively, you can not
 
 ### Notes
 
-Users in your organisation will need to have their membership public in order for SSH public keys to be sync'd to the server
+Users in your organisation will need to have their membership public in order for SSH public keys to be sync'd to the server.
+
+Github rate limits aren't currently respected. They are limited to 60 per hour. if you have a large number of users and are doing regular syncing from an IP address then you will be rate limited.
 
 ## Copyright
 
