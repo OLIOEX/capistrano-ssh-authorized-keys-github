@@ -1,4 +1,4 @@
-# Capistrano Cloudwatch [![Build Status](https://travis-ci.com/olioex/capistrano-ssh-authorized-keys-github.svg)](https://travis-ci.com/olioex/capistrano-ssh-authorized-keys-github) [![Gem Version](https://badge.fury.io/rb/capistrano-ssh-authorized-keys-github.svg)](http://badge.fury.io/rb/capistrano-ssh-authorized-keys-github)
+# Capistrano Cloudwatch [![Build Status](https://app.travis-ci.com/OLIOEX/capistrano-ssh-authorized-keys-github.svg?branch=main)](https://app.travis-ci.com/olioex/capistrano-ssh-authorized-keys-github) [![Gem Version](https://badge.fury.io/rb/capistrano-ssh-authorized-keys-github.svg)](http://badge.fury.io/rb/capistrano-ssh-authorized-keys-github)
 
 Sync organisation SSH public keys to server `authorized_keys` file so they are able to SSH into OS - for [Capistrano v3](https://github.com/capistrano/capistrano).
 
