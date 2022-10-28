@@ -1,10 +1,10 @@
 require "open-uri"
 require "json"
 
-namespace :security do
-  NO_GITHUB_ORGANISATION_PROVIDED = 'No Github organisations have been set in your configuration'
-  NO_ORGANISATION_MEMBER_KEYS_FOUND = 'There are no public members for this Github organisation'
+NO_GITHUB_ORGANISATION_PROVIDED = 'No Github organisations have been set in your configuration'
+NO_ORGANISATION_MEMBER_KEYS_FOUND = 'There are no public members for this Github organisation'
 
+namespace :security do
   desc 'Cycle SSH key logins'
   task :update_ssh_keys do
     on roles(:all), in: :sequence do
