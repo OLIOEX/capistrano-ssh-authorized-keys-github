@@ -1,4 +1,5 @@
-require "open-uri"
+require 'uri'
+require 'net/http'
 require "json"
 
 NO_GITHUB_ORGANISATION_PROVIDED = 'No Github organisations have been set in your configuration'
@@ -7,43 +8,43 @@ NO_ORGANISATION_MEMBER_KEYS_FOUND = 'There are no public members for this Github
 namespace :security do
   desc 'Cycle SSH key logins'
   task :update_ssh_keys do
-    on roles(:all), in: :sequence do
-      within release_path do
-        organisations = fetch(:github_orgs) || fetch(:github_org) || raise NO_GITHUB_ORGANISATION_PROVIDED
-        keys = ""
-        user = `whoami`.chomp
+    on roles(:all) do
+      organisations = fetch(:github_orgs) || fetch(:github_org) || raise(NO_GITHUB_ORGANISATION_PROVIDED)
+      keys = ""
+      user = `whoami`.chomp
 
-        organisations.each do |organisation|
-          url = "https://api.github.com/orgs/#{organisation}"
-          organisation_details = JSON.parse(open(url).read, symbolize_names: true)
-          members_url = organisation_details[:members_url].gsub("{/member}", "")
-          members = JSON.parse(open(members_url).read, symbolize_names: true)
-          keys += "#
-          # #{organisation_details[:name]} keys
-          # #{members_url}
-          #
-          # --
-          "
-          member_details = members.map { |member| member[:login].downcase }.sort
-          member_details.each do |member|
-            member_keys = "https://github.com/#{member}.keys"
-            info = "#
-        # @#{member}
-        # #{member_keys}
+      [*organisations].each do |organisation|
+        url = URI("https://api.github.com/orgs/#{organisation}")
+        organisation_details = JSON.parse(Net::HTTP.get_response(url).body, symbolize_names: true)
+        puts organisation_details
+        members_url = URI(organisation_details[:members_url].gsub("{/member}", ""))
+        members = JSON.parse(Net::HTTP.get_response(members_url).body, symbolize_names: true)
+        puts members
+        keys += "      #
+        # #{organisation_details[:name]} keys
+        # #{members_url}
         #
-        "
-            keys += info + open(member_keys).read.gsub(/\r\n?/, "\n")
-          end
-        end
+        # --
 
-        if keys.scan(/ssh-(rsa|ed25519)/).count > 0
-          File.open("/home/#{user}/.ssh/authorized_keys", "w") do |f|
-            f.write(keys)
-          end
-        else
-          raise NO_ORGANISATION_MEMBER_KEYS_FOUND
+        "
+        member_details = members.map { |member| member[:login].downcase }.sort
+        member_details.each do |member|
+          member_keys = URI("https://github.com/#{member}.keys")
+          info = "      #
+      # @#{member}
+      # #{member_keys}
+      #
+"
+          keys += info + Net::HTTP.get_response(member_keys).body.gsub(/\r\n?/, "\n")
         end
       end
+
+      if keys.scan(/ssh-(rsa|ed25519)/).count > 0
+        File.open("/home/#{user}/.ssh/authorized_keys", "w") do |f|
+          f.write(keys)
+        end
+      else
+        raise NO_ORGANISATION_MEMBER_KEYS_FOUND
       end
     end
   end
