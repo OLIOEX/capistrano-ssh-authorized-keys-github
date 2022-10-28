@@ -2,6 +2,8 @@
 
 Sync organisation SSH public keys to server `authorized_keys` file so they are able to SSH into OS - for [Capistrano v3](https://github.com/capistrano/capistrano).
 
+Note: The authorized keys file is generated locally before being uploaded to the server(s).
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -27,6 +29,9 @@ And then set the variables in `config/deploy.rb`:
     set :github_org, 'olioex'
     # ...or... (takes priority)
     set :github_orgs, ['olioex', 'github']
+    # Optional for Github rate limits (oauth application)
+    set :github_app_id, '12345'
+    set :github_app_secret, 'abcdef'
 
 The task will run automatically on successful deploy. Alternatively, you can notify of a deploy starting manually by using:
 

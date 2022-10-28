@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = 'capistrano-ssh-authorized-keys-github'
-  spec.version       = '1.0.1'
+  spec.version       = '1.1.0'
   spec.authors       = ['lloydwatkin']
   spec.email         = ['lloyd@olioex.com']
   spec.summary       = %q{Sync Github organisation public SSH keys to `server authorized_keys` file}

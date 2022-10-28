@@ -8,15 +8,18 @@ NO_ORGANISATION_MEMBER_KEYS_FOUND = 'There are no public members for this Github
 namespace :security do
   desc 'Cycle SSH key logins'
   task :update_ssh_keys do
-    on roles(:all) do
+    on roles(:all) do |host|
       organisations = fetch(:github_orgs) || fetch(:github_org) || raise(NO_GITHUB_ORGANISATION_PROVIDED)
       keys = ""
-      user = `whoami`.chomp
+      authentication = ''
+      if fetch(:github_app_id) && fetch(:github_app_secret)
+        authentication = "#{fetch(:github_app_id)}:#{fetch(:github_app_secret)}@"
+      end
 
       [*organisations].each do |organisation|
-        url = URI("https://api.github.com/orgs/#{organisation}")
+        url = URI("https://#{authentication}api.github.com/orgs/#{organisation}")
         organisation_details = JSON.parse(Net::HTTP.get_response(url).body, symbolize_names: true)
-        members_url = URI(organisation_details[:members_url].gsub("{/member}", ""))
+        members_url = URI(organisation_details[:members_url].gsub("{/member}", "").gsub('https://', "https://#{authentication}"))
         members = JSON.parse(Net::HTTP.get_response(members_url).body, symbolize_names: true)
         keys += "      #
         # #{organisation_details[:name]} keys
@@ -27,7 +30,7 @@ namespace :security do
         "
         member_details = members.map { |member| member[:login].downcase }.sort
         member_details.each do |member|
-          member_keys = URI("https://github.com/#{member}.keys")
+          member_keys = URI("https://#{authentication}github.com/#{member}.keys")
           info = "      #
       # @#{member}
       # #{member_keys}
@@ -38,9 +41,11 @@ namespace :security do
       end
 
       if keys.scan(/ssh-(rsa|ed25519)/).count > 0
-        File.open("/home/#{user}/.ssh/authorized_keys", "w") do |f|
+        File.open("./tmp/authorized_keys", "w") do |f|
           f.write(keys)
         end
+        upload! './tmp/authorized_keys', "/tmp/authorized_keys"
+        execute :mv, "/tmp/authorized_keys", "~/.ssh/authorized_keys"
       else
         raise NO_ORGANISATION_MEMBER_KEYS_FOUND
       end
