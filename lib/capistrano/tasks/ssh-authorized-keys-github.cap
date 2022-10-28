@@ -16,10 +16,8 @@ namespace :security do
       [*organisations].each do |organisation|
         url = URI("https://api.github.com/orgs/#{organisation}")
         organisation_details = JSON.parse(Net::HTTP.get_response(url).body, symbolize_names: true)
-        puts organisation_details
         members_url = URI(organisation_details[:members_url].gsub("{/member}", ""))
         members = JSON.parse(Net::HTTP.get_response(members_url).body, symbolize_names: true)
-        puts members
         keys += "      #
         # #{organisation_details[:name]} keys
         # #{members_url}
